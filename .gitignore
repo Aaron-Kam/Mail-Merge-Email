@@ -1,0 +1,6 @@
+.vscode
+docs-mail-merge.py
+quickstart.py
+template.txt
+token*
+credentials.json
