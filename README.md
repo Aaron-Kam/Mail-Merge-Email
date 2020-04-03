@@ -1,6 +1,13 @@
 # Mail-Merge-Email
 Will take a mailing list from a google sheet and will email them based on a template
 
+# Dependencies
+
+* credentials and authorization for both the Sheets and Gmail API, and can be recieved by completing the following:
+    * https://developers.google.com/gmail/api/quickstart/python
+    * https://developers.google.com/sheets/api/quickstart/python
+* python 2.6 or greater
+
 
 # Instructions
 First you must take the sheet ID by going onto the sheet document, and look into its url. From there you will see that it is formatted as such:
@@ -17,7 +24,7 @@ Create a text document called 'template.txt' in the working directory and write 
 |  Jane | Who  |  jane@who.com |
 | Jake  | Lum  | lummyboi@gmail.com  |
 
-Then wherever in your template you want them to insert the recipients first name you would put `{{First Name}}` in the template. Any variables that do not corrrespond to a column in the spreadsheet will be left as is, and columns in the sheet that are not called will not be used.
+Then wherever in your template you want them to insert the recipients first name you would put `{{First Name}}` in the template. In this case, it will replaced by 'John' in the first email, 'Jane' in the second, and 'Jake' in the third. Any variables that do not corrrespond to a column in the spreadsheet will be left as is, and columns in the sheet that are not called will not be used.
 
 You must set a subject, which you can do by assigning it to the `SUBJECT` variable, and finally you must set your email. This can be done by changing the `SENDER` variable to your current email address. If it does not match your credentials, then it will fail.
 
