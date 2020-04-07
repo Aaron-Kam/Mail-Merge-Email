@@ -4,6 +4,31 @@ from httplib2 import Http
 from oauth2client import file, client, tools
 from email.mime.text import MIMEText
 
+# User manipulated variables
+# In Google Sheet URL: .../d/SHEET_FILE_ID/edit#gid=0
+SHEETS_FILE_ID = 'INSERT SHEET ID HERE'
+
+# Your Email Address 
+SENDER = 'INSERT EMAIL ADDRESS'
+
+# Subject of Email
+SUBJECT = 'INSERT SUBJECT EMAIL'
+
+
+# General API constants
+CLIENT_ID_FILE = 'credentials.json'
+TOKEN_STORE_FILE = 'token.json'
+SCOPES = (  # iterable or space-delimited string
+    'https://www.googleapis.com/auth/spreadsheets.readonly',
+    'https://www.googleapis.com/auth/gmail.send'
+)
+
+HTTP = get_http_client()
+GMAIL = discovery.build('gmail', 'v1', http=HTTP)
+SHEETS = discovery.build('sheets', 'v4', http=HTTP)
+
+
+
 def get_sheets_data(service):
     """(private) Returns data from Google Sheets source. It gets all rows of
         'Sheet1' (the default Sheet in a new spreadsheet), but drops the first
@@ -70,31 +95,19 @@ def send_message(service, user_id, message):
     print('An error occurred: %s' % error)
 
 
-CLIENT_ID_FILE = 'credentials.json'
-TOKEN_STORE_FILE = 'token.json'
-SCOPES = (  # iterable or space-delimited string
-    'https://www.googleapis.com/auth/spreadsheets.readonly',
-    'https://www.googleapis.com/auth/gmail.send'
-)
-
-HTTP = get_http_client()
-GMAIL = discovery.build('gmail', 'v1', http=HTTP)
-SHEETS = discovery.build('sheets', 'v4', http=HTTP)
-SHEETS_FILE_ID = 'INSERT SHEET ID HERE'
-SENDER = 'INSERT EMAIL ADDRESS'
-SUBJECT = 'This is a test'
-
-with open('template.txt', 'r') as file:
-    template = file.read()  
 
 
+def main():
+  with open('template.txt', 'r') as file:
+      template = file.read()  
 
-data = get_sheets_data(SHEETS)
-for person in data:
-    message_body = template
-    for item in person:
-        search_str = '{{' + item + '}}'
-        message_body = message_body.replace(search_str, str(person[item]))
-    send_message(GMAIL, 'me', create_message(SENDER, person['Email'], SUBJECT, message_body))
+  data = get_sheets_data(SHEETS)
+  for person in data:
+      message_body = template
+      for item in person:
+          search_str = '{{' + item + '}}'
+          message_body = message_body.replace(search_str, str(person[item]))
+      send_message(GMAIL, 'me', create_message(SENDER, person['Email'], SUBJECT, message_body))
     
-
+if __name__ == '__main__':
+    main()
