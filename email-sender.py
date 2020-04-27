@@ -20,6 +20,12 @@ SUBJECT = 'Hi there, this is a test'
 # Email Purpose and date (e.g. "Mandatory 4/11/20")
 PURPOSE = 'Mandatory adv 4/20/20'
 
+# Number of emails per batch
+BATCH_AMT = 5
+
+# Time between email batches in seconds
+SLEEP_TIME = 5
+
 # General API constants
 CLIENT_ID_FILE = 'credentials.json'
 TOKEN_STORE_FILE = 'token.json'
@@ -148,7 +154,7 @@ def main():
       email_sent.append([work])
       num_sent =+ 1
 
-      if num_sent % 5 == 0: time.sleep(5)
+      if num_sent % SLEEP_TIME == 0: time.sleep(BATCH_AMT)
   
   last_column = colnum_string(len(data[0]) + 1)
   range_ =  last_column + ':' + last_column
