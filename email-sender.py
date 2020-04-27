@@ -2,18 +2,23 @@ import base64
 from googleapiclient import discovery
 from httplib2 import Http
 from oauth2client import file, client, tools
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
+import time
 
 # User manipulated variables
 # In Google Sheet URL: .../d/SHEET_FILE_ID/edit#gid=0
-SHEETS_FILE_ID = 'INSERT SHEET ID HERE'
+SHEETS_FILE_ID = '1TkEP8fPBPLuYbkOBJIBsPRx7HpdJiMQXlFpugtsOvSk'
 
 # Your Email Address 
-SENDER = 'INSERT EMAIL ADDRESS'
+SENDER = 'ark476@gmail.com'
 
 # Subject of Email
-SUBJECT = 'INSERT SUBJECT EMAIL'
+SUBJECT = 'Hi there, this is a test'
 
+# Email Purpose and date (e.g. "Mandatory 4/11/20")
+PURPOSE = 'Mandatory adv 4/20/20'
 
 # General API constants
 CLIENT_ID_FILE = 'credentials.json'
@@ -23,9 +28,6 @@ SCOPES = (  # iterable or space-delimited string
     'https://www.googleapis.com/auth/gmail.send'
 )
 
-HTTP = get_http_client()
-GMAIL = discovery.build('gmail', 'v1', http=HTTP)
-SHEETS = discovery.build('sheets', 'v4', http=HTTP)
 
 
 
@@ -55,6 +57,11 @@ def get_http_client():
         creds = tools.run_flow(flow, store)
     return creds.authorize(Http())
 
+HTTP = get_http_client()
+GMAIL = discovery.build('gmail', 'v1', http=HTTP)
+SHEETS = discovery.build('sheets', 'v4', http=HTTP)
+
+
 def create_message(sender, to, subject, message_text):
   """Create a message for an email.
 
@@ -67,11 +74,38 @@ def create_message(sender, to, subject, message_text):
   Returns:
     An object containing a base64url encoded email object.
   """
-  message = MIMEText(message_text)
+  
+  message = MIMEMultipart('related')
   message['to'] = to
   message['from'] = sender
   message['subject'] = subject
+  message.preamble = 'This is a multi-part message in MIME format.'  
+  
+  messageAlternative = MIMEMultipart('alternative')
+  message.attach(messageAlternative)  
+  
+  text="Hi!\nHow are you?\nBye"
+  part1=MIMEText(text, 'plain')
+  messageAlternative.attach(part1)
+  
+  partHtml=MIMEText(message_text, 'html')
+  messageAlternative.attach(partHtml)   
+  
+  fp = open('logo.png','rb')
+  messageImage = MIMEImage(fp.read())
+  fp.close
+  
+  messageImage.add_header('Content-ID', '<image1>')
+  message.attach(messageImage)  
+  
   return {'raw': base64.urlsafe_b64encode(message.as_string())}
+
+def colnum_string(n):
+    string = ""
+    while n > 0:
+        n, remainder = divmod(n - 1, 26)
+        string = chr(65 + remainder) + string
+    return string
 
 def send_message(service, user_id, message):
 
@@ -90,24 +124,45 @@ def send_message(service, user_id, message):
     message = (service.users().messages().send(userId=user_id, body=message)
                .execute())
     print('Message Id: %s' % message['id'])
-    return message
+    return True
   except(errors.HttpError, error):
     print('An error occurred: %s' % error)
-
+    return False
 
 
 
 def main():
-  with open('template.txt', 'r') as file:
-      template = file.read()  
-
+  with open('message.html', 'r') as file:
+      template = file.read()
   data = get_sheets_data(SHEETS)
+  email_sent = [[PURPOSE]]
+
+  num_sent = 0
   for person in data:
       message_body = template
       for item in person:
           search_str = '{{' + item + '}}'
           message_body = message_body.replace(search_str, str(person[item]))
-      send_message(GMAIL, 'me', create_message(SENDER, person['Email'], SUBJECT, message_body))
+
+      work = send_message(GMAIL, 'me', create_message(SENDER, person['Email'], SUBJECT, message_body))
+      email_sent.append([work])
+      num_sent =+ 1
+
+      if num_sent % 5 == 0: time.sleep(5)
+  
+  last_column = colnum_string(len(data[0]) + 1)
+  range_ =  last_column + ':' + last_column
+  body={
+    'range':range_,
+    'majorDimension': 'ROWS',
+    'values': email_sent}
+  #SHEETS.spreadsheets().values().get(spreadsheetId=SHEETS_FILE_ID)
+  SHEETS.spreadsheets().values().update(
+    spreadsheetId=SHEETS_FILE_ID,
+    range=range_,
+    valueInputOption='RAW',
+    body=body).execute()
+    
     
 if __name__ == '__main__':
     main()
