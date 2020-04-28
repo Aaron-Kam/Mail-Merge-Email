@@ -130,7 +130,7 @@ def send_message(service, user_id, message):
     message = (service.users().messages().send(userId=user_id, body=message)
                .execute())
     print('Message Id: %s' % message['id'])
-    return True
+    return time.asctime()
   except(errors.HttpError, error):
     print('An error occurred: %s' % error)
     return False
@@ -151,7 +151,7 @@ def main():
           message_body = message_body.replace(search_str, str(person[item]))
 
       work = send_message(GMAIL, 'me', create_message(SENDER, person['Email'], SUBJECT, message_body))
-      email_sent.append([work])
+      email_sent.append([str(work)])
       num_sent =+ 1
 
       if num_sent % SLEEP_TIME == 0: time.sleep(BATCH_AMT)
