@@ -28,12 +28,12 @@ Then wherever in your template you want them to insert the recipients first name
 
 You must set a subject, which you can do by assigning it to the `SUBJECT` variable, and finally you must set your email. This can be done by changing the `SENDER` variable to your current email address. If it does not match your credentials, then it will fail.
 
-You must also set a `PURPOSE`, this is different than `SUBJECT`, as `PURPOSE` will be the title of the new column entered on your spreadsheet and will only appear there. If an email was sent successfully, then it will have a value of `TRUE` for that person, if not, then it will have `FALSE`. For example, if `PURPOSE = 'Mandatory Advising 4/20'` then your spreadsheet after sending will look like this:
+You must also set a `PURPOSE`, this is different than `SUBJECT`, as `PURPOSE` will be the title of the new column entered on your spreadsheet and will only appear there. If an email was sent successfully, then it will have a timestamp for that person, if not, then it will have `FALSE`. For example, if `PURPOSE = 'Mandatory Advising 4/20'` then your spreadsheet after sending will look like this:
 | First Name  | Last Name  |  Email | Mandatory Advising 4/20 |
 |:--|:-:|:-:|--:|
-| Jonn  | Doe  | john@doe.com  | TRUE |
-|  Jane | Who  |  jane@who.com | TRUE |
-| Jake  | Lum  | lummyboi@gmail.com  | TRUE |
+| Jonn  | Doe  | john@doe.com  | Mon Apr 27 13:58:57 2020 |
+|  Jane | Who  |  jane@who.com | Mon Apr 27 13:58:57 2020 |
+| Jake  | Lum  | lummyboi@gmail.com  | Mon Apr 27 13:58:57 2020 |
 
 
 You can then run the program by typing in the commandline
