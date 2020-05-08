@@ -31,6 +31,7 @@ CLIENT_ID_FILE = 'credentials.json'
 TOKEN_STORE_FILE = 'token.json'
 SCOPES = (  # iterable or space-delimited string
     'https://www.googleapis.com/auth/spreadsheets.readonly',
+    'https://www.googleapis.com/auth/spreadsheets',
     'https://www.googleapis.com/auth/gmail.send'
 )
 
